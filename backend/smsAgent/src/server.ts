@@ -127,7 +127,7 @@ app.post("/new-ussd", async (req: Request, res: Response) => {
 
     // Main menu
     if (text === "") {
-      let response = "CON Welcome to Aptos Wallet\n";
+      let response = "CON Welcome to Stellar Wallet\n";
       response += "1. Create Account\n";
       response += "2. View Private Key\n";
       response += "3. Set PIN\n";
@@ -290,7 +290,7 @@ app.post("/new-ussd", async (req: Request, res: Response) => {
 });
 
 // Message route
-app.post("/message", async (req: Request, res: Response) => {
+app.post("/new-message", async (req: Request, res: Response) => {
   try {
     const { message, userId } = req.body;
 
@@ -350,7 +350,6 @@ app.delete("/conversation/:userId", (req: Request, res: Response) => {
     });
   }
 });
-
 // Get conversation history for a user
 app.get("/conversation/:userId", (req: Request, res: Response) => {
   try {
