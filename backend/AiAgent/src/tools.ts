@@ -6,7 +6,7 @@ import {config} from 'dotenv';
 
 config();
 
-const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+const server = new StellarSdk.Horizon.Server(process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org');
 
 
 // Tool to check wallet balance
@@ -49,8 +49,11 @@ const sendTokensTool = tool(
         throw new Error("Stellar credentials not configured");
       }
 
+      let walletAddress = process.env.STELLA_WALLET_ADDRESS;
+      let walletSecret = process.env.STELLA_WALLET_SECRET;
+
       // Load the source account
-      const sourceAccount = await server.loadAccount(process.env.STELLA_WALLET_ADDRESS);
+      const sourceAccount = await server.loadAccount(walletAddress);
 
       // Create transaction
       const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
@@ -70,14 +73,14 @@ const sendTokensTool = tool(
         .build();
 
       // Sign the transaction
-      const sourceKeys = StellarSdk.Keypair.fromSecret(process.env.STELLA_WALLET_SECRET);
+      const sourceKeys = StellarSdk.Keypair.fromSecret(walletSecret);
       transaction.sign(sourceKeys);
 
       // Submit the transaction
       const transactionResult = await server.submitTransaction(transaction);
 
       // Get updated balance
-      const updatedAccount = await server.loadAccount(process.env.STELLA_WALLET_ADDRESS);
+      const updatedAccount = await server.loadAccount(walletAddress);
       const assetBalance = updatedAccount.balances.find((balance: any) => 
         input.asset === 'XLM' 
           ? balance.asset_type === 'native'

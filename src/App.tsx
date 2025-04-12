@@ -12,12 +12,10 @@ function App() {
   const [loading, setLoading] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Fetch conversation history on component mount
   useEffect(() => {
     fetchHistory()
   }, [])
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
@@ -36,6 +34,8 @@ function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!message.trim()) return
+    
     setLoading(true)
 
     try {
@@ -67,49 +67,67 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <h1>Stellar Blockchain AI Assistant</h1>
-      
-      <div className="chat-container" ref={chatContainerRef}>
-        {history.map((msg, index) => (
-          <div 
-            key={index} 
-            className={`message ${msg.type === 'human' ? 'user-message' : 'ai-message'}`}
+    <div className="app-container">
+      <div className="chat-interface">
+        <header className="chat-header">
+          <h1>Stellar AI Assistant</h1>
+          <button 
+            onClick={handleClear} 
+            className="clear-button"
+            disabled={loading || history.length === 0}
           >
-           
-            <div className="message-content">
-              <pre>{msg.content}</pre>
+            Clear Chat
+          </button>
+        </header>
+
+        <div className="messages-container" ref={chatContainerRef}>
+          {history.length === 0 && (
+            <div className="welcome-message">
+              <h2>Welcome! 👋</h2>
+              <p>You can ask me about:</p>
+              <ul>
+                <li>Checking your Stellar wallet balance</li>
+                <li>Sending tokens to other addresses</li>
+                <li>Information about your transactions</li>
+              </ul>
             </div>
-          </div>
-        ))}
-        
-        {loading && (
-          <div className="loading-indicator">
-            <div className="typing-animation">
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
+          )}
+          
+          {history.map((msg, index) => (
+            <div 
+              key={index} 
+              className={`message ${msg.type === 'human' ? 'user-message' : 'ai-message'}`}
+            >
+              <div className="message-content">
+                {msg.content}
+              </div>
             </div>
-          </div>
-        )}
+          ))}
+          
+          {loading && (
+            <div className="message ai-message">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="input-form">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask about your Stellar wallet..."
+            disabled={loading}
+          />
+          <button type="submit" disabled={loading || !message.trim()}>
+            {loading ? 'Sending...' : 'Send'}
+          </button>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="input-form">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask about your Stellar wallet..."
-          disabled={loading}
-        />
-        <button type="submit" disabled={loading || !message}>
-          {loading ? 'Processing...' : 'Send'}
-        </button>
-        <button type="button" onClick={handleClear} disabled={loading}>
-          Clear Chat
-        </button>
-      </form>
-
     </div>
   )
 }
